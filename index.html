@@ -48,36 +48,63 @@
     <ul id="lista"></ul>
 
     <script>
-        function adicionar() {
-            let input = document.getElementById("tarefa");
-            let texto = input.value;
+function adicionar() {
+    let input = document.getElementById("tarefa");
+    let texto = input.value;
 
-            if (texto === "") {
-                alert("Digite uma tarefa!");
-                return;
-            }
+    if (texto === "") {
+        alert("Digite uma tarefa!");
+        return;
+    }
 
-            let lista = document.getElementById("lista");
+    let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+    tarefas.push({ texto: texto, concluida: false });
 
-            let item = document.createElement("li");
-            item.innerText = texto;
+    localStorage.setItem("tarefas", JSON.stringify(tarefas));
 
-            item.onclick = function() {
-                item.style.textDecoration = "line-through";
-            }
+    input.value = "";
+    mostrarTarefas();
+}
 
-            let botao = document.createElement("button");
-            botao.innerText = "Excluir";
-            botao.onclick = function() {
-                lista.removeChild(item);
-            }
+function mostrarTarefas() {
+    let lista = document.getElementById("lista");
+    lista.innerHTML = "";
 
-            item.appendChild(botao);
-            lista.appendChild(item);
+    let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
 
-            input.value = "";
+    tarefas.forEach((tarefa, index) => {
+        let item = document.createElement("li");
+        item.innerText = tarefa.texto;
+
+        if (tarefa.concluida) {
+            item.style.textDecoration = "line-through";
         }
-    </script>
+
+        item.onclick = function() {
+            tarefas[index].concluida = !tarefas[index].concluida;
+            localStorage.setItem("tarefas", JSON.stringify(tarefas));
+            mostrarTarefas();
+        }
+
+        let botao = document.createElement("button");
+        botao.innerText = "Excluir";
+        botao.style.marginLeft = "10px";
+
+        botao.onclick = function(e) {
+            e.stopPropagation();
+            tarefas.splice(index, 1);
+            localStorage.setItem("tarefas", JSON.stringify(tarefas));
+            mostrarTarefas();
+        }
+
+        item.appendChild(botao);
+        lista.appendChild(item);
+    });
+}
+
+// carregar ao abrir o site
+mostrarTarefas();
+</script>
 
 </body>
 </html>
