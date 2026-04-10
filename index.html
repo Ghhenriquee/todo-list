@@ -1,33 +1,83 @@
-<script>
-function adicionar() {
-    let input = document.getElementById("tarefa");
-    let texto = input.value;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>To-Do List</title>
 
-    if (texto === "") {
-        alert("Digite uma tarefa!");
-        return;
-    }
+    <style>
+        body {
+            font-family: Arial;
+            background: #121212;
+            color: white;
+            text-align: center;
+            padding-top: 50px;
+        }
 
-    let lista = document.getElementById("lista");
+        input {
+            padding: 10px;
+            width: 200px;
+        }
 
-    let item = document.createElement("li");
-    item.innerText = texto;
+        button {
+            padding: 10px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
 
-    // riscar tarefa
-    item.onclick = function() {
-        item.style.textDecoration = "line-through";
-    }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
 
-    // botão excluir
-    let botao = document.createElement("button");
-    botao.innerText = "Excluir";
-    botao.onclick = function() {
-        lista.removeChild(item);
-    }
+        li {
+            margin: 10px;
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
 
-    item.appendChild(botao);
-    lista.appendChild(item);
+    <h1>Minha To-Do List 📝</h1>
 
-    input.value = "";
-}
-</script>
+    <input id="tarefa" placeholder="Digite uma tarefa">
+    <button onclick="adicionar()">Adicionar</button>
+
+    <ul id="lista"></ul>
+
+    <script>
+        function adicionar() {
+            let input = document.getElementById("tarefa");
+            let texto = input.value;
+
+            if (texto === "") {
+                alert("Digite uma tarefa!");
+                return;
+            }
+
+            let lista = document.getElementById("lista");
+
+            let item = document.createElement("li");
+            item.innerText = texto;
+
+            item.onclick = function() {
+                item.style.textDecoration = "line-through";
+            }
+
+            let botao = document.createElement("button");
+            botao.innerText = "Excluir";
+            botao.onclick = function() {
+                lista.removeChild(item);
+            }
+
+            item.appendChild(botao);
+            lista.appendChild(item);
+
+            input.value = "";
+        }
+    </script>
+
+</body>
+</html>
