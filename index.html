@@ -16,12 +16,16 @@
         input {
             padding: 10px;
             width: 200px;
+            border-radius: 5px;
+            border: none;
         }
 
         button {
             padding: 10px;
             margin-left: 5px;
             cursor: pointer;
+            border-radius: 5px;
+            border: none;
         }
 
         ul {
@@ -31,10 +35,25 @@
         }
 
         li {
-            margin: 10px;
+            margin: 10px auto;
             background: #1e1e1e;
             padding: 10px;
             border-radius: 5px;
+            max-width: 300px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .concluida {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .contador {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
         }
     </style>
 </head>
@@ -42,69 +61,91 @@
 
     <h1>Minha To-Do List 📝</h1>
 
-    <input id="tarefa" placeholder="Digite uma tarefa">
+    <input id="tarefa" placeholder="Ex: Estudar JavaScript">
     <button onclick="adicionar()">Adicionar</button>
 
     <ul id="lista"></ul>
 
+    <button onclick="limparTudo()">Limpar tudo</button>
+
+    <div class="contador" id="contador"></div>
+
     <script>
-function adicionar() {
-    let input = document.getElementById("tarefa");
-    let texto = input.value;
+        let input = document.getElementById("tarefa");
 
-    if (texto === "") {
-        alert("Digite uma tarefa!");
-        return;
-    }
+        // ENTER adiciona tarefa
+        input.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                adicionar();
+            }
+        });
 
-    let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
-    tarefas.push({ texto: texto, concluida: false });
+        function adicionar() {
+            let texto = input.value;
 
-    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+            if (texto === "") {
+                alert("Digite uma tarefa!");
+                return;
+            }
 
-    input.value = "";
-    mostrarTarefas();
-}
+            let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+            tarefas.push({ texto: texto, concluida: false });
 
-function mostrarTarefas() {
-    let lista = document.getElementById("lista");
-    lista.innerHTML = "";
-
-    let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
-
-    tarefas.forEach((tarefa, index) => {
-        let item = document.createElement("li");
-        item.innerText = tarefa.texto;
-
-        if (tarefa.concluida) {
-            item.style.textDecoration = "line-through";
-        }
-
-        item.onclick = function() {
-            tarefas[index].concluida = !tarefas[index].concluida;
             localStorage.setItem("tarefas", JSON.stringify(tarefas));
+
+            input.value = "";
             mostrarTarefas();
         }
 
-        let botao = document.createElement("button");
-        botao.innerText = "Excluir";
-        botao.style.marginLeft = "10px";
+        function mostrarTarefas() {
+            let lista = document.getElementById("lista");
+            let contador = document.getElementById("contador");
 
-        botao.onclick = function(e) {
-            e.stopPropagation();
-            tarefas.splice(index, 1);
-            localStorage.setItem("tarefas", JSON.stringify(tarefas));
+            lista.innerHTML = "";
+
+            let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+
+            tarefas.forEach((tarefa, index) => {
+                let item = document.createElement("li");
+
+                if (tarefa.concluida) {
+                    item.classList.add("concluida");
+                }
+
+                let texto = document.createElement("span");
+                texto.innerText = tarefa.texto;
+
+                texto.onclick = function() {
+                    tarefas[index].concluida = !tarefas[index].concluida;
+                    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+                    mostrarTarefas();
+                }
+
+                let botao = document.createElement("button");
+                botao.innerText = "❌";
+
+                botao.onclick = function(e) {
+                    e.stopPropagation();
+                    tarefas.splice(index, 1);
+                    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+                    mostrarTarefas();
+                }
+
+                item.appendChild(texto);
+                item.appendChild(botao);
+                lista.appendChild(item);
+            });
+
+            contador.innerText = "Total de tarefas: " + tarefas.length;
+        }
+
+        function limparTudo() {
+            localStorage.removeItem("tarefas");
             mostrarTarefas();
         }
 
-        item.appendChild(botao);
-        lista.appendChild(item);
-    });
-}
-
-// carregar ao abrir o site
-mostrarTarefas();
-</script>
+        mostrarTarefas();
+    </script>
 
 </body>
 </html>
