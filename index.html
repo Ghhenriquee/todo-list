@@ -6,26 +6,47 @@
 
     <style>
         body {
+            margin: 0;
             font-family: Arial;
-            background: #121212;
-            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             text-align: center;
-            padding-top: 50px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
         }
 
         input {
             padding: 10px;
-            width: 200px;
+            width: 70%;
             border-radius: 5px;
-            border: none;
+            border: 1px solid #ccc;
         }
 
-        button {
+        .add-btn {
             padding: 10px;
-            margin-left: 5px;
-            cursor: pointer;
-            border-radius: 5px;
+            background: #667eea;
+            color: white;
             border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background: #5a67d8;
         }
 
         ul {
@@ -35,117 +56,140 @@
         }
 
         li {
-            margin: 10px auto;
-            background: #1e1e1e;
+            background: #f4f4f4;
+            margin: 10px 0;
             padding: 10px;
-            border-radius: 5px;
-            max-width: 300px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .concluida {
+        li.concluida {
             text-decoration: line-through;
             opacity: 0.6;
         }
 
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 8px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: darkred;
+        }
+
+        .clear-btn {
+            margin-top: 15px;
+            padding: 10px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .clear-btn:hover {
+            background: #e84118;
+        }
+
         .contador {
-            margin-top: 20px;
+            margin-top: 10px;
             font-size: 14px;
-            color: #aaa;
+            color: gray;
         }
     </style>
 </head>
 <body>
 
-    <h1>Minha To-Do List 📝</h1>
+<div class="container">
+    <h1>To-Do List 📝</h1>
 
     <input id="tarefa" placeholder="Ex: Estudar JavaScript">
-    <button onclick="adicionar()">Adicionar</button>
+    <button class="add-btn" onclick="adicionar()">+</button>
 
     <ul id="lista"></ul>
 
-    <button onclick="limparTudo()">Limpar tudo</button>
+    <button class="clear-btn" onclick="limparTudo()">Limpar tudo</button>
 
     <div class="contador" id="contador"></div>
+</div>
 
-    <script>
-        let input = document.getElementById("tarefa");
+<script>
+let input = document.getElementById("tarefa");
 
-        // ENTER adiciona tarefa
-        input.addEventListener("keypress", function(e) {
-            if (e.key === "Enter") {
-                adicionar();
-            }
-        });
+input.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") {
+        adicionar();
+    }
+});
 
-        function adicionar() {
-            let texto = input.value;
+function adicionar() {
+    let texto = input.value;
 
-            if (texto === "") {
-                alert("Digite uma tarefa!");
-                return;
-            }
+    if (texto === "") return;
 
-            let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
-            tarefas.push({ texto: texto, concluida: false });
+    let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+    tarefas.push({ texto: texto, concluida: false });
 
+    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+
+    input.value = "";
+    mostrarTarefas();
+}
+
+function mostrarTarefas() {
+    let lista = document.getElementById("lista");
+    let contador = document.getElementById("contador");
+
+    lista.innerHTML = "";
+
+    let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+
+    tarefas.forEach((tarefa, index) => {
+        let item = document.createElement("li");
+
+        if (tarefa.concluida) item.classList.add("concluida");
+
+        let texto = document.createElement("span");
+        texto.innerText = tarefa.texto;
+
+        texto.onclick = function() {
+            tarefas[index].concluida = !tarefas[index].concluida;
             localStorage.setItem("tarefas", JSON.stringify(tarefas));
-
-            input.value = "";
             mostrarTarefas();
         }
 
-        function mostrarTarefas() {
-            let lista = document.getElementById("lista");
-            let contador = document.getElementById("contador");
+        let botao = document.createElement("button");
+        botao.innerText = "X";
+        botao.className = "delete-btn";
 
-            lista.innerHTML = "";
-
-            let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
-
-            tarefas.forEach((tarefa, index) => {
-                let item = document.createElement("li");
-
-                if (tarefa.concluida) {
-                    item.classList.add("concluida");
-                }
-
-                let texto = document.createElement("span");
-                texto.innerText = tarefa.texto;
-
-                texto.onclick = function() {
-                    tarefas[index].concluida = !tarefas[index].concluida;
-                    localStorage.setItem("tarefas", JSON.stringify(tarefas));
-                    mostrarTarefas();
-                }
-
-                let botao = document.createElement("button");
-                botao.innerText = "❌";
-
-                botao.onclick = function(e) {
-                    e.stopPropagation();
-                    tarefas.splice(index, 1);
-                    localStorage.setItem("tarefas", JSON.stringify(tarefas));
-                    mostrarTarefas();
-                }
-
-                item.appendChild(texto);
-                item.appendChild(botao);
-                lista.appendChild(item);
-            });
-
-            contador.innerText = "Total de tarefas: " + tarefas.length;
-        }
-
-        function limparTudo() {
-            localStorage.removeItem("tarefas");
+        botao.onclick = function(e) {
+            e.stopPropagation();
+            tarefas.splice(index, 1);
+            localStorage.setItem("tarefas", JSON.stringify(tarefas));
             mostrarTarefas();
         }
 
-        mostrarTarefas();
-    </script>
+        item.appendChild(texto);
+        item.appendChild(botao);
+        lista.appendChild(item);
+    });
+
+    contador.innerText = "Total de tarefas: " + tarefas.length;
+}
+
+function limparTudo() {
+    localStorage.removeItem("tarefas");
+    mostrarTarefas();
+}
+
+mostrarTarefas();
+</script>
 
 </body>
 </html>
