@@ -1,148 +1,140 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>To-Do List</title>
+<meta charset="UTF-8">
+<title>To-Do App</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            color: #333;
-        }
+<style>
+:root {
+    --bg: linear-gradient(135deg, #667eea, #764ba2);
+    --card: white;
+    --text: #333;
+}
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 320px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            text-align: center;
-        }
+.dark {
+    --bg: #121212;
+    --card: #1e1e1e;
+    --text: #fff;
+}
 
-        h1 {
-            margin-bottom: 20px;
-        }
+body {
+    margin: 0;
+    font-family: Arial;
+    background: var(--bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    transition: 0.3s;
+}
 
-        input {
-            padding: 10px;
-            width: 70%;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+.container {
+    background: var(--card);
+    color: var(--text);
+    padding: 25px;
+    border-radius: 15px;
+    width: 360px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    transition: 0.3s;
+}
 
-        .add-btn {
-            padding: 10px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+input {
+    padding: 10px;
+    width: 65%;
+}
 
-        .add-btn:hover {
-            background: #5a67d8;
-        }
+button {
+    padding: 8px;
+    cursor: pointer;
+}
 
-        ul {
-            list-style: none;
-            padding: 0;
-            margin-top: 20px;
-        }
+ul {
+    list-style: none;
+    padding: 0;
+}
 
-        li {
-            background: #f4f4f4;
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+li {
+    background: rgba(0,0,0,0.05);
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    animation: aparecer 0.3s ease;
+}
 
-        li.concluida {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
+.concluida {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
 
-        .delete-btn {
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 8px;
-            cursor: pointer;
-        }
+.filtros button {
+    margin: 5px;
+}
 
-        .delete-btn:hover {
-            background: darkred;
-        }
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .clear-btn {
-            margin-top: 15px;
-            padding: 10px;
-            background: #ff4757;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+.toggle {
+    cursor: pointer;
+}
 
-        .clear-btn:hover {
-            background: #e84118;
-        }
-
-        .contador {
-            margin-top: 10px;
-            font-size: 14px;
-            color: gray;
-        }
-    </style>
+@keyframes aparecer {
+    from {opacity: 0; transform: translateY(10px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <h1>To-Do List 📝</h1>
+    <div class="topo">
+        <h2>To-Do App 📝</h2>
+        <span class="toggle" onclick="alternarTema()">🌙</span>
+    </div>
 
-    <input id="tarefa" placeholder="Ex: Estudar JavaScript">
-    <button class="add-btn" onclick="adicionar()">+</button>
+    <input id="tarefa" placeholder="Nova tarefa">
+    <button onclick="adicionar()">+</button>
+
+    <div class="filtros">
+        <button onclick="filtrar('todas')">Todas</button>
+        <button onclick="filtrar('pendentes')">Pendentes</button>
+        <button onclick="filtrar('concluidas')">Concluídas</button>
+    </div>
 
     <ul id="lista"></ul>
 
-    <button class="clear-btn" onclick="limparTudo()">Limpar tudo</button>
-
-    <div class="contador" id="contador"></div>
+    <p id="contador"></p>
 </div>
 
 <script>
-let input = document.getElementById("tarefa");
+let filtroAtual = "todas";
 
-input.addEventListener("keypress", function(e) {
-    if (e.key === "Enter") {
-        adicionar();
-    }
-});
+function alternarTema() {
+    document.body.classList.toggle("dark");
+}
 
 function adicionar() {
+    let input = document.getElementById("tarefa");
     let texto = input.value;
 
     if (texto === "") return;
 
     let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
-    tarefas.push({ texto: texto, concluida: false });
+    tarefas.push({ texto, concluida: false });
 
     localStorage.setItem("tarefas", JSON.stringify(tarefas));
 
     input.value = "";
-    mostrarTarefas();
+    mostrar();
 }
 
-function mostrarTarefas() {
+function mostrar() {
     let lista = document.getElementById("lista");
     let contador = document.getElementById("contador");
 
@@ -150,7 +142,13 @@ function mostrarTarefas() {
 
     let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
 
-    tarefas.forEach((tarefa, index) => {
+    let filtradas = tarefas.filter(t => {
+        if (filtroAtual === "pendentes") return !t.concluida;
+        if (filtroAtual === "concluidas") return t.concluida;
+        return true;
+    });
+
+    filtradas.forEach((tarefa, index) => {
         let item = document.createElement("li");
 
         if (tarefa.concluida) item.classList.add("concluida");
@@ -158,37 +156,50 @@ function mostrarTarefas() {
         let texto = document.createElement("span");
         texto.innerText = tarefa.texto;
 
-        texto.onclick = function() {
+        texto.onclick = () => {
             tarefas[index].concluida = !tarefas[index].concluida;
-            localStorage.setItem("tarefas", JSON.stringify(tarefas));
-            mostrarTarefas();
-        }
+            salvar(tarefas);
+        };
 
-        let botao = document.createElement("button");
-        botao.innerText = "X";
-        botao.className = "delete-btn";
+        texto.ondblclick = () => {
+            let novo = prompt("Editar tarefa:", tarefa.texto);
+            if (novo) {
+                tarefas[index].texto = novo;
+                salvar(tarefas);
+            }
+        };
 
-        botao.onclick = function(e) {
+        let del = document.createElement("button");
+        del.innerText = "❌";
+
+        del.onclick = (e) => {
             e.stopPropagation();
             tarefas.splice(index, 1);
-            localStorage.setItem("tarefas", JSON.stringify(tarefas));
-            mostrarTarefas();
-        }
+            salvar(tarefas);
+        };
 
         item.appendChild(texto);
-        item.appendChild(botao);
+        item.appendChild(del);
         lista.appendChild(item);
     });
 
-    contador.innerText = "Total de tarefas: " + tarefas.length;
+    let total = tarefas.length;
+    let concluidas = tarefas.filter(t => t.concluida).length;
+
+    contador.innerText = `${concluidas} concluídas de ${total} tarefas`;
 }
 
-function limparTudo() {
-    localStorage.removeItem("tarefas");
-    mostrarTarefas();
+function filtrar(tipo) {
+    filtroAtual = tipo;
+    mostrar();
 }
 
-mostrarTarefas();
+function salvar(tarefas) {
+    localStorage.setItem("tarefas", JSON.stringify(tarefas));
+    mostrar();
+}
+
+mostrar();
 </script>
 
 </body>
